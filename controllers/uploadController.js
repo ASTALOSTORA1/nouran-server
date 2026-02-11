@@ -47,20 +47,33 @@ exports.uploadImage = async (req, res) => {
         } else {
             throw new Error(response.data.error?.message || 'فشل في رفع الصورة');
         }
-    } catch (error) {
-        console.error('Upload error:', error);
-        
-        // في حالة فشل الرفع، يمكن استخدام صورة افتراضية
-        const fallbackUrl = 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400&h=300&fit=crop';
-        
-        res.json({
-            success: true,
-            data: {
-                url: fallbackUrl,
-                thumb: fallbackUrl,
-                medium: fallbackUrl,
-                note: 'تم استخدام صورة افتراضية بسبب مشكلة في الرفع'
-            }
-        });
     }
+        // catch (error) {
+    //     console.error('Upload error:', error);
+        
+    //     // في حالة فشل الرفع، يمكن استخدام صورة افتراضية
+    //     const fallbackUrl = 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400&h=300&fit=crop';
+        
+    //     res.json({
+    //         success: true,
+    //         data: {
+    //             url: fallbackUrl,
+    //             thumb: fallbackUrl,
+    //             medium: fallbackUrl,
+    //             note: 'تم استخدام صورة افتراضية بسبب مشكلة في الرفع'
+    //         }
+    //     });
+    // }
+
+    } catch (error) {
+    console.error('Upload error:',
+        error.response?.data || error.message
+    );
+
+    return res.status(500).json({
+        success: false,
+        error: error.response?.data || error.message
+    });
+}
+
 };
