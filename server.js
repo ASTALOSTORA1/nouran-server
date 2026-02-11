@@ -9,6 +9,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// أضف ده في server.js قبل الـ routes
+app.use((req, res, next) => {
+    // منع التخزين المؤقت للصور
+    if (req.path.includes('/uploads') || req.path.includes('/images')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
+
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -47,16 +58,7 @@ mongoose.connect(MONGODB_URI, {
     process.exit(1); // مهم جداً - لا تشغل السيرفر إذا فشل الاتصال
 });
 
-// أضف ده في server.js قبل الـ routes
-app.use((req, res, next) => {
-    // منع التخزين المؤقت للصور
-    if (req.path.includes('/uploads') || req.path.includes('/images')) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-    }
-    next();
-});
+
 
 
 
@@ -136,4 +138,5 @@ const PORT = process.env.PORT || 5000;
 //     console.log(`🌐 MongoDB: ${mongoose.connection.host || 'Connecting...'}`);
 
 // });
+
 
