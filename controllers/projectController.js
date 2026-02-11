@@ -52,35 +52,6 @@ exports.getProject = async (req, res) => {
     }
 };
 
-// // @desc    Create project
-// // @route   POST /api/projects
-// // @access  Private
-// exports.createProject = async (req, res) => {
-//     try {
-//         const { title, description, imageUrl } = req.body;
-
-//         const project = await Project.create({
-//             title,
-//             description,
-//             imageUrl,
-//             userId: req.user._id
-//         });
-
-//         res.status(201).json({
-//             success: true,
-//             message: 'Project created successfully',
-//             data: project
-//         });
-//     } catch (error) {
-//         console.error('Create project error:', error);
-//         res.status(500).json({
-//             success: false,
-//             error: 'Server error'
-//         });
-//     }
-// };
-
-
 // @desc    Create project
 // @route   POST /api/projects
 // @access  Private
@@ -88,33 +59,27 @@ exports.createProject = async (req, res) => {
     try {
         const { title, description, imageUrl } = req.body;
 
-        if (!title || !description || !imageUrl) {
-            return res.status(400).json({
-                success: false,
-                error: 'جميع الحقول مطلوبة'
-            });
-        }
-
         const project = await Project.create({
             title,
             description,
             imageUrl,
-            user: req.user.id
+            userId: req.user._id
         });
 
         res.status(201).json({
             success: true,
+            message: 'Project created successfully',
             data: project
         });
-
     } catch (error) {
         console.error('Create project error:', error);
         res.status(500).json({
             success: false,
-            error: 'فشل في إنشاء المشروع'
+            error: 'Server error'
         });
     }
 };
+
 // @desc    Update project
 // @route   PUT /api/projects/:id
 // @access  Private
@@ -204,3 +169,4 @@ exports.deleteAllProjects = async (req, res) => {
     }
 
 };
+
