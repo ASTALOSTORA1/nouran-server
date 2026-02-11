@@ -26,23 +26,45 @@ const Project = require('./models/Project');
 // MongoDB Atlas Connection
 const MONGODB_URI = process.env.MONGODB_URI ;
 
+
 mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
 })
 .then(() => {
     console.log('✅ Connected to MongoDB Atlas');
     console.log(`📊 Database: ${mongoose.connection.name}`);
+
+    // شغل السيرفر فقط بعد نجاح الاتصال
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📡 API URL: http://localhost:${PORT}`);
+    });
+
 })
 .catch(err => {
     console.error('❌ MongoDB connection error:', err.message);
-    console.log('💡 Make sure:');
-    console.log('   1. Your IP is whitelisted in MongoDB Atlas');
-    console.log('   2. Database user has correct permissions');
-    console.log('   3. Network allows connections');
+    process.exit(1); // مهم جداً - لا تشغل السيرفر إذا فشل الاتصال
 });
+
+
+// mongoose.connect(MONGODB_URI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//     serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+//     socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+// })
+// .then(() => {
+//     console.log('✅ Connected to MongoDB Atlas');
+//     console.log(`📊 Database: ${mongoose.connection.name}`);
+// })
+// .catch(err => {
+//     console.error('❌ MongoDB connection error:', err.message);
+//     console.log('💡 Make sure:');
+//     console.log('   1. Your IP is whitelisted in MongoDB Atlas');
+//     console.log('   2. Database user has correct permissions');
+//     console.log('   3. Network allows connections');
+// });
 
 // Basic route
 app.get('/', (req, res) => {
@@ -96,8 +118,9 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📡 API URL: http://localhost:${PORT}`);
-    console.log(`🌐 MongoDB: ${mongoose.connection.host || 'Connecting...'}`);
-});
+// app.listen(PORT, () => {
+//     console.log(`🚀 Server running on port ${PORT}`);
+//     console.log(`📡 API URL: http://localhost:${PORT}`);
+//     console.log(`🌐 MongoDB: ${mongoose.connection.host || 'Connecting...'}`);
+
+// });
