@@ -1,77 +1,3 @@
-// const axios = require('axios');
-// const FormData = require('form-data');
-
-// // @desc    Upload image to ImgBB
-// // @route   POST /api/upload
-// // @access  Private
-// exports.uploadImage = async (req, res) => {
-//     try {
-//         if (!req.file) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: 'لم يتم توفير صورة'
-//             });
-//         }
-
-//         const imageFile = req.file;
-        
-//         // التحقق من حجم الملف (10MB كحد أقصى)
-//         if (imageFile.size > 10 * 1024 * 1024) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: 'حجم الصورة كبير جداً. الحد الأقصى 10MB'
-//             });
-//         }
-
-//         // تحويل الصورة إلى base64
-//         const base64Image = imageFile.buffer.toString('base64');
-        
-//         // رفع إلى ImgBB باستخدام form-data
-//         const formData = new FormData();
-//         formData.append('key', process.env.IMGBB_API_KEY);
-//         formData.append('image', base64Image);
-
-//         const response = await axios.post('https://api.imgbb.com/1/upload', formData, {
-//             headers: formData.getHeaders()
-//         });
-
-//         if (response.data.success) {
-//             res.json({
-//                 success: true,
-//                 data: {
-//                     url: response.data.data.url,
-//                     thumb: response.data.data.thumb.url,
-//                     medium: response.data.data.medium.url
-//                 }
-//             });
-//         } else {
-//             throw new Error(response.data.error?.message || 'فشل في رفع الصورة');
-//         }
-//     }
-//         catch (error) {
-//         console.error('Upload error:', error);
-        
-//         // في حالة فشل الرفع، يمكن استخدام صورة افتراضية
-//         const fallbackUrl = 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?w=400&h=300&fit=crop';
-        
-//         res.json({
-//             success: true,
-//             data: {
-//                 url: fallbackUrl,
-//                 thumb: fallbackUrl,
-//                 medium: fallbackUrl,
-//                 note: 'تم استخدام صورة افتراضية بسبب مشكلة في الرفع'
-//             }
-//         });
-//     }
-
-
-
-// };
-
-
-
-
 const axios = require('axios');
 const FormData = require('form-data');
 
@@ -90,11 +16,11 @@ exports.uploadImage = async (req, res) => {
 
         const imageFile = req.file;
 
-        // ✅ التحقق من حجم الملف (10MB كحد أقصى)
-        if (imageFile.size > 10 * 1024 * 1024) {
+        // ✅ التحقق من حجم الملف (5MB كحد أقصى - خليها 5 زي الفرونت)
+        if (imageFile.size > 5 * 1024 * 1024) {
             return res.status(400).json({
                 success: false,
-                error: 'حجم الصورة كبير جداً. الحد الأقصى 10MB'
+                error: 'حجم الصورة كبير جداً. الحد الأقصى 5MB'
             });
         }
 
@@ -108,15 +34,15 @@ exports.uploadImage = async (req, res) => {
 
         // ✅ رفع الصورة إلى ImgBB
         const response = await axios.post('https://api.imgbb.com/1/upload', formData, {
-            headers: formData.getHeaders()
+            headers: formData.getHeaders(),
+            timeout: 10000 // 10 ثواني كحد أقصى
         });
 
-        console.log('ImgBB Response:', response.data); // لتصحيح أي مشكلة مستقبلية
+        console.log('✅ ImgBB Success:', response.data?.data?.url);
 
-        if (response.data.success) {
+        if (response.data?.success) {
             const imageData = response.data.data;
 
-            // ✅ استخدام Optional Chaining لتجنب أي TypeError
             res.json({
                 success: true,
                 data: {
@@ -126,17 +52,23 @@ exports.uploadImage = async (req, res) => {
                 }
             });
         } else {
-            throw new Error(response.data.error?.message || 'فشل في رفع الصورة');
+            // ❌ مش بنجح - نرجع error حقيقي
+            throw new Error(response.data?.error?.message || 'فشل في رفع الصورة');
         }
 
     } catch (error) {
-        // ✅ عرض الخطأ الحقيقي من ImgBB أو Axios
-        console.error('Upload error:', error.response?.data || error.message);
+        // ✅ عرض الخطأ الحقيقي
+        console.error('❌ Upload Error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+        });
 
+        // ❌ مهم جداً: نرجع status 500 و success false
+        // مش بنرجع success true مع صورة افتراضية!
         return res.status(500).json({
             success: false,
-            error: error.response?.data || error.message
+            error: error.message || 'فشل في رفع الصورة'
         });
     }
 };
-
