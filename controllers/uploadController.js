@@ -65,7 +65,7 @@ exports.uploadImage = async (req, res) => {
     //     });
     // }
 
-    } catch (error) {
+     catch (error) {
     console.error('Upload error:',
         error.response?.data || error.message
     );
@@ -77,3 +77,4 @@ exports.uploadImage = async (req, res) => {
 }
 
 };
+
