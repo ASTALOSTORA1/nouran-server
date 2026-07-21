@@ -59,7 +59,7 @@ const seedDatabase = async () => {
 
         // تشفير كلمة المرور
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash('22-4-2025', salt);
+        const hashedPassword = await bcrypt.hash('admin', salt);
 
         // إنشاء المستخدم
         const user = new User({
